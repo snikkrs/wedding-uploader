@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Upload Your Wedding Photos 💍</title>
+  </head>
+  <body style="text-align: center; font-family: sans-serif">
+    <h2>Alex ❤️ Sam’s Wedding</h2>
+    <p>Share your photos with us!</p>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="file" accept="image/*" capture="environment" />
+      <button type="submit">Upload</button>
+    </form>
+    <p id="status"></p>
+
+    <script>
+      const form = document.getElementById("uploadForm");
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        document.getElementById("status").innerText = "Uploading...";
+        const res = await fetch("/upload", { method: "POST", body: formData });
+        document.getElementById("status").innerText = await res.text();
+      });
+    </script>
+  </body>
+</html>
