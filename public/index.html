@@ -1,168 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sara & Matija Wedding</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #faf9f6;
-      min-height: 100vh;
-      color: #333;
-    }
-    header {
-      position: relative;
-      width: 100%;
-      text-align: center;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 1.8rem;
-      margin: 10px 0;
-    }
-    .language-switcher {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      display: flex;
-      gap: 10px;
-      cursor: pointer;
-    }
-    .photo-placeholder {
-      width: 100%;
-      max-width: 400px;
-      height: 200px;
-      background: #ddd;
-      border: 2px dashed #aaa;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 20px 0;
-      color: #666;
-      font-size: 1rem;
-    }
-    .upload-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
-    }
-    .step-label {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-    .file-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: space-between;
-    }
-    label {
-      flex: 1;
-    }
-    input[type="file"] {
-      display: none;
-    }
-    .btn {
-      display: block;
-      text-align: center;
-      padding: 15px;
-      border-radius: 10px;
-      background: #f8e1a1;
-      border: 2px solid #b8860b;
-      color: white;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.3s;
-    }
-    .btn:hover {
-      background: #f4d77a;
-    }
-    .btn-upload {
-      background: #4caf50;
-      border: none;
-      color: white;
-    }
-    .btn-upload:hover {
-      background: #3e8e41;
-    }
-    #status {
-      margin-top: 15px;
-      font-size: 1rem;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1 id="title">Sara & Matija Wedding</h1>
-    <p id="subtitle">Share your photos with us 💕</p>
-    <div class="language-switcher">
-      <span id="lang-en">🇬🇧</span>
-      <span id="lang-hr">🇭🇷</span>
-    </div>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sara & Matija Wedding</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        background: #fffdf7;
+        min-height: 100vh;
+        color: #333;
+      }
+      h1 {
+        font-size: 2rem;
+        margin-top: 20px;
+        margin-bottom: 5px;
+      }
+      h2 {
+        font-size: 1.2rem;
+        margin: 0;
+        font-weight: normal;
+        color: #777;
+      }
+      .spacer {
+        height: 20px;
+      }
+      .upload-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+        max-width: 320px;
+        padding: 10px;
+      }
+      label {
+        display: block;
+        width: 100%;
+      }
+      input[type="file"] {
+        display: none;
+      }
+      .btn {
+        display: block;
+        text-align: center;
+        padding: 15px;
+        border-radius: 8px;
+        background: #d4af37; /* gold */
+        color: white;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        width: 100%;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        transition: background 0.3s;
+      }
+      .btn:hover {
+        background: #b9972b;
+      }
+      #status {
+        margin-top: 15px;
+        font-size: 0.95rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sara & Matija</h1>
+    <h2>6.9.2025.</h2>
 
-  <div class="photo-placeholder" id="placeholder">
-    Our photo goes here
-  </div>
+    <div class="spacer"></div>
 
-  <form id="uploadForm" enctype="multipart/form-data">
-    <div class="upload-container">
-      <div>
-        <p class="step-label" id="step1">Step 1: Select your photos</p>
-        <div class="file-buttons">
-          <!-- Take Photo -->
-          <label for="cameraInput" class="btn" id="cameraBtn">📷 Take Photo</label>
-          <input type="file" id="cameraInput" name="photo" accept="image/*" capture="environment" multiple />
+    <form id="uploadForm" enctype="multipart/form-data">
+      <div class="upload-container">
+        <!-- Option 1: Take Photo -->
+        <label for="cameraInput" class="btn">📷 Take a Photo</label>
+        <input
+          type="file"
+          id="cameraInput"
+          name="photo"
+          accept="image/*"
+          capture="environment"
+        />
 
-          <!-- Choose Gallery -->
-          <label for="galleryInput" class="btn" id="galleryBtn">🖼️ Gallery</label>
-          <input type="file" id="galleryInput" name="photo" accept="image/*" multiple />
-        </div>
+        <!-- Option 2: Pick from Gallery -->
+        <label for="galleryInput" class="btn">🖼️ Choose from Gallery</label>
+        <input type="file" id="galleryInput" name="photo" accept="image/*" />
       </div>
 
-      <!-- Upload Button -->
-      <div>
-        <p class="step-label" id="step2">Step 2: Upload your photos</p>
-        <button type="submit" class="btn btn-upload" id="uploadBtn">⬆️ Upload Photo(s)</button>
+      <div class="upload-container">
+        <!-- Upload Button -->
+        <button type="submit" class="btn" style="background: #4caf50">
+          ⬆️ Upload Photo
+        </button>
       </div>
 
       <div id="status"></div>
-    </div>
-  </form>
+    </form>
 
-  <script>
-    const uploadForm = document.getElementById("uploadForm");
-    const status = document.getElementById("status");
-    const cameraInput = document.getElementById("cameraInput");
-    const galleryInput = document.getElementById("galleryInput");
+    <script>
+      const uploadForm = document.getElementById("uploadForm");
+      const status = document.getElementById("status");
+      const cameraInput = document.getElementById("cameraInput");
+      const galleryInput = document.getElementById("galleryInput");
 
-    let selectedFiles = [];
+      let selectedFile = null;
 
-    // Collect files from both inputs
-    function updateFiles(input) {
-      selectedFiles = Array.from(input.files);
-    }
+      cameraInput.addEventListener("change", (e) => {
+        selectedFile = e.target.files[0];
+      });
 
-    cameraInput.addEventListener("change", (e) => updateFiles(e.target));
-    galleryInput.addEventListener("change", (e) => updateFiles(e.target));
+      galleryInput.addEventListener("change", (e) => {
+        selectedFile = e.target.files[0];
+      });
 
-    uploadForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (selectedFiles.length === 0) {
-        status.innerText = currentLang === "en" ? "Please select a photo first!" : "Molimo odaberite fotografiju!";
-        return;
-      }
+      uploadForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (!selectedFile) {
+          status.innerText = "Please select a photo first!";
+          return;
+        }
 
-      const formData = new FormData();
-      selectedFiles.forEach((file) =
+        const formData = new FormData();
+        formData.append("photo", selectedFile);
+
+        status.innerText = "Uploading...";
+
+        try {
+          const res = await fetch("/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (res.ok) {
+            status.innerText = "✅ Upload successful! Thank you 💖";
+            cameraInput.value = "";
+            galleryInput.value = "";
+            selectedFile = null;
+          } else {
+            const error = await res.text();
+            status.innerText = "❌ Upload failed: " + error;
+          }
+        } catch (err) {
+          status.innerText = "❌ Upload failed: " + err.message;
+        }
+      });
+    </script>
+  </body>
+</html>
