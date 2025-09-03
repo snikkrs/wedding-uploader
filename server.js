@@ -26,12 +26,8 @@ try {
   process.exit(1);
 }
 
-// Load folder ID from env
-const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
-if (!FOLDER_ID) {
-  console.error("Missing env GOOGLE_DRIVE_FOLDER_ID");
-  process.exit(1);
-}
+// Hardcoded folder ID
+const FOLDER_ID = "1Nx--yRj1XOd19W2WYY_pUlc0HkmPkNnr";
 
 const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
 const auth = new google.auth.GoogleAuth({
@@ -58,7 +54,7 @@ app.post("/upload", upload.array("photo"), async (req, res) => {
       const media = { mimeType: file.mimetype, body: fs.createReadStream(file.path) };
       const fileMetadata = {
         name: fileName,
-        parents: [FOLDER_ID], // FORCE upload into shared folder
+        parents: [FOLDER_ID], // FORCE upload into the shared folder
       };
 
       const resp = await drive.files.create({
