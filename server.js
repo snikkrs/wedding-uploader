@@ -1,58 +1,87 @@
 import express from "express";
 import multer from "multer";
-import fetch from "node-fetch";
 import fs from "fs";
+import { google } from "googleapis";
 
 const app = express();
-const upload = multer({ dest: "uploads/" });
 
-const DROPBOX_ACCESS_TOKEN = process.env.DROPBOX_ACCESS_TOKEN;
+// --- Multer: temp dir + optional size limit (e.g., 25 MB per file)
+const upload = multer({
+  dest: "uploads/",
+  limits: { fileSize: 25 * 1024 * 1024 }, // adjust if needed
+});
+
+// --- Google Drive auth from env JSON (DO NOT commit the JSON file)
+const serviceAccountJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+if (!serviceAccountJson) {
+  console.error("Missing env GOOGLE_SERVICE_ACCOUNT_KEY");
+  process.exit(1);
+}
+let credentials;
+try {
+  credentials = JSON.parse(serviceAccountJson);
+} catch (e) {
+  console.error("GOOGLE_SERVICE_ACCOUNT_KEY is not valid JSON");
+  process.exit(1);
+}
+
+const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
+const auth = new google.auth.GoogleAuth({
+  credentials,
+  scopes: SCOPES,
+});
+const drive = google.drive({ version: "v3", auth });
+
+const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID;
+if (!FOLDER_ID) {
+  console.error("Missing env GOOGLE_DRIVE_FOLDER_ID");
+  process.exit(1);
+}
 
 app.use(express.static("public"));
 
-// Handle multiple files
 app.post("/upload", upload.array("photo"), async (req, res) => {
   if (!req.files || req.files.length === 0) {
     return res.status(400).send("No files uploaded.");
   }
 
   try {
-    // Upload each file sequentially
+    // Upload sequentially to keep memory stable
     for (const file of req.files) {
-      const fileContent = fs.readFileSync(file.path);
+      const fileName = `${Date.now()}_${file.originalname}`;
+      const media = {
+        mimeType: file.mimetype,
+        body: fs.createReadStream(file.path),
+      };
+      const fileMetadata = { name: fileName, parents: [FOLDER_ID] };
 
-      const dropboxRes = await fetch(
-        "https://content.dropboxapi.com/2/files/upload",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${DROPBOX_ACCESS_TOKEN}`,
-            "Dropbox-API-Arg": JSON.stringify({
-              path: `/${Date.now()}_${file.originalname}`,
-              mode: "add",
-              autorename: true,
-              mute: false,
-            }),
-            "Content-Type": "application/octet-stream",
-          },
-          body: fileContent,
-        }
-      );
+      const resp = await drive.files.create({
+        resource: fileMetadata,
+        media,
+        fields: "id",
+      });
 
-      if (!dropboxRes.ok) {
-        const err = await dropboxRes.text();
-        console.error("Dropbox error:", err);
-        return res.status(500).send("Dropbox upload failed: " + err);
+      // Remove temp file
+      try {
+        fs.unlinkSync(file.path);
+      } catch (_) {}
+      if (!resp || !resp.data || !resp.data.id) {
+        return res.status(500).send("Google Drive upload failed.");
       }
-
-      // cleanup temp file
-      fs.unlinkSync(file.path);
     }
 
     res.send("Upload successful!");
   } catch (err) {
-    console.error("Server error:", err);
-    res.status(500).send("Server error: " + err.message);
+    console.error("Google Drive error:", err?.response?.data || err.message);
+    // Clean up any remaining temp files on error
+    for (const f of req.files) {
+      try {
+        fs.unlinkSync(f.path);
+      } catch (_) {}
+    }
+    res
+      .status(500)
+      .send("Google Drive upload failed: " + (err?.message || "Unknown error"));
   }
 });
 
