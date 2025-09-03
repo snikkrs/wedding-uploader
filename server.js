@@ -6,47 +6,55 @@ import fs from "fs";
 const app = express();
 const upload = multer({ dest: "uploads/" });
 
-// Read access token from environment variable
 const DROPBOX_ACCESS_TOKEN = process.env.DROPBOX_ACCESS_TOKEN;
 
-app.use(express.static("public")); // serve frontend
+app.use(express.static("public"));
 
-app.post("/upload", upload.single("file"), async (req, res) => {
+// Handle multiple files
+app.post("/upload", upload.array("photo"), async (req, res) => {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).send("No files uploaded.");
+  }
+
   try {
-    const filePath = req.file.path;
-    const fileName = req.file.originalname;
+    // Upload each file sequentially
+    for (const file of req.files) {
+      const fileContent = fs.readFileSync(file.path);
 
-    const fileContents = fs.readFileSync(filePath);
+      const dropboxRes = await fetch(
+        "https://content.dropboxapi.com/2/files/upload",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${DROPBOX_ACCESS_TOKEN}`,
+            "Dropbox-API-Arg": JSON.stringify({
+              path: `/${Date.now()}_${file.originalname}`,
+              mode: "add",
+              autorename: true,
+              mute: false,
+            }),
+            "Content-Type": "application/octet-stream",
+          },
+          body: fileContent,
+        }
+      );
 
-    const response = await fetch(
-      "https://content.dropboxapi.com/2/files/upload",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${DROPBOX_ACCESS_TOKEN}`,
-          "Dropbox-API-Arg": JSON.stringify({
-            path: `/${fileName}`,
-            mode: "add",
-            autorename: true,
-          }),
-          "Content-Type": "application/octet-stream",
-        },
-        body: fileContents,
+      if (!dropboxRes.ok) {
+        const err = await dropboxRes.text();
+        console.error("Dropbox error:", err);
+        return res.status(500).send("Dropbox upload failed: " + err);
       }
-    );
 
-    fs.unlinkSync(filePath); // cleanup temp file
-
-    if (response.ok) {
-      res.send("✅ File uploaded successfully!");
-    } else {
-      const err = await response.text();
-      res.status(500).send("❌ Upload failed: " + err);
+      // cleanup temp file
+      fs.unlinkSync(file.path);
     }
+
+    res.send("Upload successful!");
   } catch (err) {
-    res.status(500).send("❌ Error: " + err.message);
+    console.error("Server error:", err);
+    res.status(500).send("Server error: " + err.message);
   }
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`🚀 Server running on port ${port}`));
+app.listen(port, () => console.log(`Server running on port ${port}`));
